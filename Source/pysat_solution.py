@@ -14,7 +14,7 @@ def solve_with_pysat(matrix):
 
     bridge_vars = add_main_contraints(cnf, vpool, bridges)
     add_island_contraints(cnf, vpool, islands, bridge_vars)
-    add_non_crossing_constraints(cnf, vpool, bridges, islands)
+    add_non_crossing_constraints(cnf, vpool, bridges)
 
     solver = Solver(name='glucose3')
     solver.append_formula(cnf)
