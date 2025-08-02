@@ -91,13 +91,32 @@ def add_island_contraints(cnf, vpool, islands, bridge_vars):
             required_bridge[j].extend([x1, x2])
     for id, lits in required_bridge.items():
         require = islands[id][2]
-        if lits:
+        if len(lits) >= require and require > 0:
             card = CardEnc.equals(lits=lits, bound=require, vpool=vpool, encoding=1)
             cnf.extend(card.clauses)
+        elif require == 0:
+            for lit in lits:
+                cnf.append([-lit])
         else:
-            if require > 0:
-                cnf.append([])
+            cnf.append([])
     return
+
+def count_possible_bridges(grid, row, col):
+    R, C = len(grid), len(grid[0])
+    directions = [(-1, 0), (1, 0), (0, -1), (0, 1)]  # up, down, left, right
+    count = 0
+    for dr, dc in directions:
+        r, c = row + dr, col + dc
+        while 0 <= r < R and 0 <= c < C:
+            if grid[r][c] > 0:
+                count += 1
+                break
+            elif grid[r][c] == 0:
+                r += dr
+                c += dc
+            else:
+                break
+    return count
 
 def add_non_crossing_constraints(cnf, vpool, bridges):
     """

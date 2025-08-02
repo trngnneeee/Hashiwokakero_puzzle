@@ -1,0 +1,13 @@
+Island at (0,1) requires 3 bridges but only 2 possible solution
+Island at (0,6) requires 4 bridges but only 3 possible solution
+Island at (2,2) requires 4 bridges but only 3 possible solution
+Island at (2,10) requires 3 bridges but only 2 possible solution
+Island at (4,0) requires 4 bridges but only 3 possible solution
+Island at (4,4) requires 6 bridges but only 4 possible solution
+Island at (4,6) requires 5 bridges but only 4 possible solution
+Island at (4,10) requires 4 bridges but only 3 possible solution
+Island at (8,0) requires 3 bridges but only 2 possible solution
+Island at (8,6) requires 4 bridges but only 3 possible solution
+Island at (8,10) requires 3 bridges but only 2 possible solution
+Island at (10,9) requires 3 bridges but only 2 possible solution
+No solution for input-3.txt
