@@ -1,23 +1,4 @@
-from helper import print_result
-from pysat_solution import solve_with_pysat
-from a_start_solution import solve_with_a_star
-from brute_force_solution import solve_with_brute_force
-from pysat.formula import CNF
-from pysat.solvers import Solver
-from pysat.formula import IDPool
 from pysat.card import CardEnc
-import os
-
-INPUT_DIR = os.path.join(os.path.dirname(__file__), 'input')
-OUTPUT_DIR = os.path.join(os.path.dirname(__file__), 'output')
-
-def read_file(filename): 
-    matrix = []
-    with open(filename, 'r') as file:
-        for line in file: 
-            r = list(map(int, line.strip().split(', ')))
-            matrix.append(r)
-    return matrix
 
 def get_island_info(matrix):
     """
@@ -92,7 +73,7 @@ def add_main_contraints(cnf, vpool, bridges):
     bridge_vars = {}
     for (i, j, extra) in bridges:
         x1 = vpool.id(('x', i, j, 1))
-        x2 = vpool.id(('y', i, j, 2))
+        x2 = vpool.id(('x', i, j, 2))
         cnf.append([-x2, x1])
         bridge_vars[(i, j)] = (x1, x2)
     return bridge_vars
@@ -117,7 +98,7 @@ def add_island_contraints(cnf, vpool, islands, bridge_vars):
                 cnf.append([])
     return
 
-def add_non_crossing_constraints(cnf, vpool, bridges, islands):
+def add_non_crossing_constraints(cnf, vpool, bridges):
     """
     There are no vertical and horizontal bridge cross.
     """
@@ -170,46 +151,36 @@ def check_connect(solution, islands):
     dfs(start)
     return len(visited) == len(islands)
 
-def solve_with_pysat(matrix):
+def get_n_vars(cnf):
     """
-    Solve Hashiwokakero with pySAT solver
+    Get the number of variables in the CNF formula.
+    This is the maximum absolute value of the literals in the clauses.  
     """
-    islands = get_island_info(matrix)
-    bridges, coor_to_id = generate_bridge(islands, matrix)
+    n = 0
+    for clause in cnf.clauses:
+        for lit in clause:
+            n = max(n, abs(lit))
+    return n
 
-    cnf = CNF()
-    vpool = IDPool()
+def interpret_model(assignment, bridge_vars):
+    """ 
+    Interpret the model to get the solution in a readable format.
+    Input: assignment (list of boolean values), bridge_vars): (dictionary of edge variables)
+    Output: solution (dictionary of edges with their counts)
+    """
+    sol = {}
+    for key, (x1, x2) in bridge_vars.items():
+        if assignment[x1]:
+            count = 1
+            if assignment[x2]:
+                count = 2
+            sol[key] = count
+    return sol
 
-    bridge_vars = add_main_contraints(cnf, vpool, bridges)
-    add_island_contraints(cnf, vpool, islands, bridge_vars)
-    add_non_crossing_constraints(cnf, vpool, bridges, islands)
-
-    solver = Solver(name='glucose3')
-    solver.append_formula(cnf)
-
-    while solver.solve():
-        model = solver.get_model()
-        solution = {}
-        used_literals = []
-
-        for (i, j), (x1, x2) in bridge_vars.items():
-            if model[x1 - 1] > 0:
-                count = 1
-                if model[x2 - 1] > 0:
-                    count = 2
-                solution[(i, j)] = count
-                used_literals.append(x1)
-    
-        if check_connect(solution, islands):
-            solver.delete()
-            return solution, islands, bridges
-        else:
-            solver.add_clause([-lit for lit in used_literals])
-                
-    solver.delete()
-    return None, None, None
-
-def print_result(matrix, islands, bridges, solution, filename):
+def print_result(matrix, islands, solution):
+    """ 
+    Print the result in a readable format.
+    """
     rows = len(matrix)
     cols = len(matrix[0])
     output = [['0' for _ in range(cols)] for _ in range(rows)]
@@ -230,30 +201,5 @@ def print_result(matrix, islands, bridges, solution, filename):
             for r in range(min(r1, r2) + 1, max(r1, r2)):
                 output[r][c] = '|' if count == 1 else '$'
 
-    with open(filename, 'w') as f:
-        for r in output: 
-            f.write(' '.join(r) + '\n')
-
-def count_files_in_directory(folder_path):
-    count = 0
-    for entry in os.listdir(folder_path):
-        full_path = os.path.join(folder_path, entry)
-        if os.path.isfile(full_path):
-            count += 1
-    return count
-
-def main():
-    num_file = count_files_in_directory(INPUT_DIR)
-    for i in range(num_file): 
-        if (i == 9):
-            input_path = os.path.join(INPUT_DIR, f'input-{i + 1}.txt')
-        else: 
-            input_path = os.path.join(INPUT_DIR, f'input-0{i + 1}.txt')
-        output_path = os.path.join(OUTPUT_DIR, f'output{i}.txt')
-
-        matrix = read_file(input_path)
-        solution, islands, bridges = solve_with_pysat(matrix)
-        print_result(matrix, islands, bridges, solution, output_path)
-
-if __name__ == "__main__":
-    main()
+    for row in output:
+        print(' '.join(row))
