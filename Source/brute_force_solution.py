@@ -1,0 +1,37 @@
+from pysat.formula import CNF, IDPool
+import itertools
+from helper import get_island_info, generate_bridge, add_main_contraints, add_island_contraints, add_non_crossing_constraints, check_connect, get_n_vars, interpret_model
+
+def solve_with_brute_force(matrix):
+    """
+    Solve Hashiwokakero using brute-force approach (try all truth assignments).
+    """
+    islands = get_island_info(matrix)
+    bridges, coord_to_id = generate_bridge(islands, matrix)
+
+    cnf = CNF()
+    vpool = IDPool()
+
+    bridge_vars = add_main_contraints(cnf, vpool, bridges)
+    add_island_contraints(cnf, vpool, islands, bridge_vars)
+    add_non_crossing_constraints(cnf, vpool, bridges, islands)
+
+    clauses = cnf.clauses
+    n = get_n_vars(cnf)
+
+    for c in itertools.product([False, True], repeat=n):
+        assignment = [None] + list(c)  
+        satisfied = True
+
+        for clause in clauses:
+            if not any((lit > 0 and assignment[abs(lit)]) or
+                       (lit < 0 and not assignment[abs(lit)]) for lit in clause):
+                satisfied = False
+                break
+
+        if satisfied:
+            solution = interpret_model(assignment, bridge_vars)
+            if check_connect(solution, islands):
+                return solution, islands, bridges
+
+    return None, None, None
