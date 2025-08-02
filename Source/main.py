@@ -1,16 +1,18 @@
 from pysat.formula import CNF, IDPool
 from pysat.card import CardEnc
 from pysat.solvers import Solver
+import os
 
-matrix = [
-    [0, 2, 0, 5, 0, 0, 2],
-    [0, 0, 0, 0, 0, 0, 0],
-    [4, 0, 2, 0, 2, 0, 4],
-    [0, 0, 0, 0, 0, 0, 0],
-    [0, 1, 0, 5, 0, 2, 0],
-    [0, 0, 0, 0, 0, 0, 0],
-    [4, 0, 0, 0, 0, 0, 3]
-]
+INPUT_DIR = os.path.join(os.path.dirname(__file__), 'input')
+OUTPUT_DIR = os.path.join(os.path.dirname(__file__), 'output')
+
+def read_file(filename): 
+    matrix = []
+    with open(filename, 'r') as file:
+        for line in file: 
+            r = list(map(int, line.strip().split(', ')))
+            matrix.append(r)
+    return matrix
 
 def get_island_info(matrix):
     """
@@ -202,7 +204,7 @@ def solve_with_pysat(matrix):
     solver.delete()
     return None, None, None
 
-def print_result(matrix, islands, bridges, solution):
+def print_result(matrix, islands, bridges, solution, filename):
     rows = len(matrix)
     cols = len(matrix[0])
     output = [['0' for _ in range(cols)] for _ in range(rows)]
@@ -223,12 +225,27 @@ def print_result(matrix, islands, bridges, solution):
             for r in range(min(r1, r2) + 1, max(r1, r2)):
                 output[r][c] = '|' if count == 1 else '$'
 
-    for row in output:
-        print(' '.join(row))
+    with open(filename, 'w') as fout: 
+        for r in output: 
+            fout.write(' '.join(r) + '\n')
+
+def count_files_in_directory(folder_path):
+    count = 0
+    for entry in os.listdir(folder_path):
+        full_path = os.path.join(folder_path, entry)
+        if os.path.isfile(full_path):
+            count += 1
+    return count
 
 def main():
-    solution, islands, bridges = solve_with_pysat(matrix)
-    print_result(matrix, islands, bridges, solution)
+    num_file = count_files_in_directory(INPUT_DIR)
+    for i in range(num_file): 
+        input_path = os.path.join(INPUT_DIR, f'input{i}.txt')
+        output_path = os.path.join(OUTPUT_DIR, f'output{i}.txt')
+
+        matrix = read_file(input_path)
+        solution, islands, bridges = solve_with_pysat(matrix)
+        print_result(matrix, islands, bridges, solution, output_path)
 
 if __name__ == "__main__":
     main()
