@@ -1,12 +1,12 @@
-from helper import count_files_in_directory, read_file, count_possible_bridges, print_result
+from helper import count_files_in_directory, read_file, count_possible_bridges, print_result, measure_time
 from pysat_solution import solve_with_pysat
 import os
 from backtrack_solution import solve_with_back_track
+from a_start_solution import solve_with_a_star
+from brute_force_solution import solve_with_brute_force
 
-CURRENT_DIR = os.path.dirname(os.path.abspath(__file__))
-PARENT_DIR = os.path.dirname(CURRENT_DIR)
-INPUT_DIR = os.path.join(PARENT_DIR, 'Input')
-OUTPUT_DIR = os.path.join(PARENT_DIR, 'output')
+INPUT_DIR = os.path.join(os.path.dirname(__file__), 'input')
+OUTPUT_DIR = os.path.join(os.path.dirname(__file__), 'output')
 
 def main():
     num_file = count_files_in_directory(INPUT_DIR)
@@ -33,6 +33,10 @@ def main():
                 fout.write(f'No solution for input-{idx + 1}.txt\n')
             continue 
         print_result(matrix, islands, solution, output_path)
+
+        #measure performance 
+        time = measure_time(solve_with_pysat, matrix)
+        print(f"Time: {time:.4f}s")
 
 if __name__ == "__main__":
     main()
