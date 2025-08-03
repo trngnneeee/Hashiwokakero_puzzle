@@ -205,7 +205,7 @@ def read_file(filename):
             matrix.append(r)
     return matrix
 
-def print_result(matrix, islands, bridges, solution, filename):
+def print_result(matrix, islands, solution, filename):
     rows = len(matrix)
     cols = len(matrix[0])
     output = [['0' for _ in range(cols)] for _ in range(rows)]

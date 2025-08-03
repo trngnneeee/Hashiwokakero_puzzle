@@ -13,7 +13,7 @@ def main():
             input_path = os.path.join(INPUT_DIR, f'input-{idx + 1}.txt')
         else: 
             input_path = os.path.join(INPUT_DIR, f'input-0{idx + 1}.txt')
-        output_path = os.path.join(OUTPUT_DIR, f'output{idx}.txt')
+        output_path = os.path.join(OUTPUT_DIR, f'output{idx + 1}.txt')
 
         matrix = read_file(input_path)
         #check 
@@ -30,7 +30,7 @@ def main():
             with open(output_path, 'at') as fout:
                 fout.write(f'No solution for input-{idx + 1}.txt\n')
             continue 
-        print_result(matrix, islands, bridges, solution, output_path)
+        print_result(matrix, islands, solution, output_path)
 
 if __name__ == "__main__":
     main()
