@@ -14,7 +14,7 @@ def solve_with_brute_force(matrix):
 
     bridge_vars = add_main_contraints(cnf, vpool, bridges)
     add_island_contraints(cnf, vpool, islands, bridge_vars)
-    add_non_crossing_constraints(cnf, vpool, bridges, islands)
+    add_non_crossing_constraints(cnf, vpool, bridges)
 
     clauses = cnf.clauses
     n = get_n_vars(cnf)

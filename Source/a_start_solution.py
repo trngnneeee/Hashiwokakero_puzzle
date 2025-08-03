@@ -1,6 +1,5 @@
 import heapq
 from pysat.formula import CNF, IDPool
-from pysat.solvers import Solver
 from helper import get_island_info, generate_bridge, add_main_contraints, add_island_contraints, add_non_crossing_constraints, check_connect, get_n_vars, interpret_model
 
 def solve_with_a_star(matrix):
@@ -15,7 +14,7 @@ def solve_with_a_star(matrix):
 
     bridge_vars = add_main_contraints(cnf, vpool, bridges)
     add_island_contraints(cnf, vpool, islands, bridge_vars)
-    add_non_crossing_constraints(cnf, vpool, bridges, islands)
+    add_non_crossing_constraints(cnf, vpool, bridges)
 
     clauses = cnf.clauses
     n = get_n_vars(cnf)

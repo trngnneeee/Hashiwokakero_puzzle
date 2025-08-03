@@ -1,7 +1,5 @@
-0 2 = 5 - - 2
-0 0 0 $ 0 0 |
-4 = 2 $ 2 = 4
-$ 0 0 $ 0 0 |
-$ 1 - 5 = 2 |
-$ 0 0 0 0 0 |
-4 = = = = = 3
+Island at (0,5) requires 4 bridges but only 3 possible solution
+Island at (0,7) requires 3 bridges but only 2 possible solution
+Island at (1,0) requires 3 bridges but only 2 possible solution
+Island at (3,0) requires 6 bridges but only 3 possible solution
+Island at (3,6) requires 5 bridges but only 3 possible solution
