@@ -1,2 +1,0 @@
-Island at (2,1) requires 3 bridges but only 1 possible.
-No solution found for input-02.txt
