@@ -238,13 +238,3 @@ def count_files_in_directory(folder_path):
         if os.path.isfile(full_path):
             count += 1
     return count
-
-import time
-
-def measure_time(func, *args, **kwargs):
-    start_time = time.perf_counter()
-    result = func(*args, **kwargs)
-    end_time = time.perf_counter()
-    
-    elapsed_time = end_time - start_time
-    return elapsed_time

@@ -1,11 +1,14 @@
 from pysat.formula import CNF, IDPool
 import itertools
 from helper import get_island_info, generate_bridge, add_main_contraints, add_island_contraints, add_non_crossing_constraints, check_connect, get_n_vars, interpret_model
+import time
 
 def solve_with_brute_force(matrix):
     """
     Solve Hashiwokakero using brute-force approach (try all truth assignments).
     """
+    start_time = time.perf_counter()
+
     islands = get_island_info(matrix)
     bridges, coord_to_id = generate_bridge(islands, matrix)
 
@@ -32,6 +35,7 @@ def solve_with_brute_force(matrix):
         if satisfied:
             solution = interpret_model(assignment, bridge_vars)
             if check_connect(solution, islands):
-                return solution, islands, bridges
-
-    return None, None, None
+                elapsed = time.perf_counter() - start_time
+                return solution, islands, bridges, elapsed
+    elapsed = time.perf_counter() - start_time
+    return None, None, None, elapsed

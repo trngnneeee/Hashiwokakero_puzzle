@@ -1,4 +1,4 @@
-from helper import count_files_in_directory, read_file, count_possible_bridges, print_result, measure_time
+from helper import count_files_in_directory, read_file, count_possible_bridges, print_result
 from pysat_solution import solve_with_pysat
 import os
 from backtrack_solution import solve_with_back_track
@@ -27,16 +27,16 @@ def main():
                         if possible < matrix[i][j]:
                             fout.write(f"Island at ({i},{j}) requires {matrix[i][j]} bridges but only {possible} possible solution\n")
 
-        solution, islands, bridges = solve_with_pysat(matrix)
+        solution, islands, bridges, time_pysat = solve_with_pysat(matrix)
+        #measure performance 
+        print(f"Time pysat input-{idx + 1}.txt: {time_pysat:.4f}s")
+        
         if solution is None:
             with open(output_path, 'at') as fout:
                 fout.write(f'No solution for input-{idx + 1}.txt\n')
             continue 
         print_result(matrix, islands, solution, output_path)
 
-        #measure performance 
-        time = measure_time(solve_with_pysat, matrix)
-        print(f"Time: {time:.4f}s")
 
 if __name__ == "__main__":
     main()

@@ -1,11 +1,14 @@
+import time
 from pysat.formula import CNF, IDPool
 from pysat.solvers import Solver
 from helper import get_island_info, generate_bridge, add_main_contraints, add_island_contraints, add_non_crossing_constraints, check_connect
 
 def solve_with_pysat(matrix):
     """
-    Solve Hashiwokakero with pySAT solver
+    Solve Hashiwokakero with pySAT solver and measure time.
     """
+    start_time = time.perf_counter()
+
     islands = get_island_info(matrix)
     bridges, coor_to_id = generate_bridge(islands, matrix)
 
@@ -31,12 +34,14 @@ def solve_with_pysat(matrix):
                     count = 2
                 solution[(i, j)] = count
                 used_literals.append(x1)
-    
+
         if check_connect(solution, islands):
             solver.delete()
-            return solution, islands, bridges
+            elapsed = time.perf_counter() - start_time
+            return solution, islands, bridges, elapsed
         else:
             solver.add_clause([-lit for lit in used_literals])
-                
+
     solver.delete()
-    return None, None, None
+    elapsed = time.perf_counter() - start_time
+    return None, None, None, elapsed

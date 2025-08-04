@@ -1,11 +1,19 @@
 import heapq
+import time
 from pysat.formula import CNF, IDPool
-from helper import get_island_info, generate_bridge, add_main_contraints, add_island_contraints, add_non_crossing_constraints, check_connect, get_n_vars, interpret_model
+from helper import (
+    get_island_info, generate_bridge,
+    add_main_contraints, add_island_contraints, 
+    add_non_crossing_constraints, check_connect,
+    get_n_vars, interpret_model
+)
 
 def solve_with_a_star(matrix):
     """
-    Solve Hashiwokakero applying A* algorithm
+    Solve Hashiwokakero applying A* algorithm and measure time.
     """
+    start_time = time.perf_counter()
+
     islands = get_island_info(matrix)
     bridges, coord_to_id = generate_bridge(islands, matrix)
 
@@ -18,8 +26,7 @@ def solve_with_a_star(matrix):
 
     clauses = cnf.clauses
     n = get_n_vars(cnf)
-
-    init = ([None] * (n+1))
+    init = [None] * (n + 1)
 
     def heuristic(assgn):
         h = 0
@@ -39,7 +46,7 @@ def solve_with_a_star(matrix):
     g0 = 0
     h0 = heuristic(init)
     open_heap = []
-    heapq.heappush(open_heap, (g0+h0, g0, init))
+    heapq.heappush(open_heap, (g0 + h0, g0, init))
     closed = set()
 
     while open_heap:
@@ -52,13 +59,18 @@ def solve_with_a_star(matrix):
         if None not in assgn[1:]:
             valid = True
             for clause in clauses:
-                if not any((lit > 0 and assgn[abs(lit)] is True) or (lit < 0 and assgn[abs(lit)] is False) for lit in clause):
+                if not any(
+                    (lit > 0 and assgn[abs(lit)] is True) or 
+                    (lit < 0 and assgn[abs(lit)] is False)
+                    for lit in clause
+                ):
                     valid = False
                     break
             if valid:
                 solution = interpret_model(assgn, bridge_vars)
                 if check_connect(solution, islands):
-                    return solution, islands, bridges
+                    elapsed = time.perf_counter() - start_time
+                    return solution, islands, bridges, elapsed
             continue
 
         try:
@@ -92,6 +104,7 @@ def solve_with_a_star(matrix):
 
             new_g = g + 1
             new_h = heuristic(new_assgn)
-            heapq.heappush(open_heap, (new_g+new_h, new_g, new_assgn))
+            heapq.heappush(open_heap, (new_g + new_h, new_g, new_assgn))
 
-    return None, None, None
+    elapsed = time.perf_counter() - start_time
+    return None, None, None, elapsed
