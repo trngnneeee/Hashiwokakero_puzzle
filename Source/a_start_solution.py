@@ -1,6 +1,7 @@
 import heapq
 import time
 from pysat.formula import CNF, IDPool
+import tracemalloc
 from helper import (
     get_island_info, generate_bridge,
     add_main_contraints, add_island_contraints, 
@@ -13,6 +14,7 @@ def solve_with_a_star(matrix):
     Solve Hashiwokakero applying A* algorithm and measure time.
     """
     start_time = time.perf_counter()
+    tracemalloc.start() 
 
     islands = get_island_info(matrix)
     bridges, coord_to_id = generate_bridge(islands, matrix)
@@ -70,7 +72,9 @@ def solve_with_a_star(matrix):
                 solution = interpret_model(assgn, bridge_vars)
                 if check_connect(solution, islands):
                     elapsed = time.perf_counter() - start_time
-                    return solution, islands, bridges, elapsed
+                    current, peak = tracemalloc.get_traced_memory()
+                    tracemalloc.stop()
+                    return solution, islands, bridges, elapsed, peak / 1024
             continue
 
         try:
@@ -107,4 +111,7 @@ def solve_with_a_star(matrix):
             heapq.heappush(open_heap, (new_g + new_h, new_g, new_assgn))
 
     elapsed = time.perf_counter() - start_time
-    return None, None, None, elapsed
+    current, peak = tracemalloc.get_traced_memory()
+    tracemalloc.stop()
+
+    return None, None, None, elapsed, peak / 1024 

@@ -1,12 +1,15 @@
 import time
+import tracemalloc
 from pysat.formula import CNF, IDPool
 from pysat.solvers import Solver
-from helper import get_island_info, generate_bridge, add_main_contraints, add_island_contraints, add_non_crossing_constraints, check_connect
+from helper import (
+    get_island_info, generate_bridge,
+    add_main_contraints, add_island_contraints, 
+    add_non_crossing_constraints, check_connect
+)
 
 def solve_with_pysat(matrix):
-    """
-    Solve Hashiwokakero with pySAT solver and measure time.
-    """
+    tracemalloc.start()
     start_time = time.perf_counter()
 
     islands = get_island_info(matrix)
@@ -38,10 +41,14 @@ def solve_with_pysat(matrix):
         if check_connect(solution, islands):
             solver.delete()
             elapsed = time.perf_counter() - start_time
-            return solution, islands, bridges, elapsed
+            current, peak = tracemalloc.get_traced_memory()
+            tracemalloc.stop()
+            return solution, islands, bridges, elapsed, peak / 1024
         else:
             solver.add_clause([-lit for lit in used_literals])
 
     solver.delete()
     elapsed = time.perf_counter() - start_time
-    return None, None, None, elapsed
+    current, peak = tracemalloc.get_traced_memory()
+    tracemalloc.stop()
+    return None, None, None, elapsed, peak / 1024

@@ -5,8 +5,10 @@ from helper import (
     check_connect, get_n_vars, interpret_model
 )
 import time
+import tracemalloc
 
 def solve_with_back_track(matrix):
+    tracemalloc.start()
     start_time = time.perf_counter()
 
     islands = get_island_info(matrix)
@@ -28,7 +30,7 @@ def solve_with_back_track(matrix):
             for lit in clause:
                 val = assignment[abs(lit)]
                 if val is None:
-                    satisfied = True 
+                    satisfied = True
                     break
                 elif (lit > 0 and val is True) or (lit < 0 and val is False):
                     satisfied = True
@@ -51,15 +53,17 @@ def solve_with_back_track(matrix):
                 result = backtrack(assignment, i + 1)
                 if result:
                     return result
-            assignment[i] = None  
+            assignment[i] = None
         return None
 
     assignment = [None] * (n + 1)
     solution = backtrack(assignment)
     
     elapsed = time.perf_counter() - start_time
+    current, peak = tracemalloc.get_traced_memory()
+    tracemalloc.stop()
 
     if solution:
-        return solution, islands, bridges, elapsed
+        return solution, islands, bridges, elapsed, peak / 1024
     else:
-        return None, None, None, elapsed
+        return None, None, None, elapsed, peak / 1024

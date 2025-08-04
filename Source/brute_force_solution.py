@@ -2,11 +2,10 @@ from pysat.formula import CNF, IDPool
 import itertools
 from helper import get_island_info, generate_bridge, add_main_contraints, add_island_contraints, add_non_crossing_constraints, check_connect, get_n_vars, interpret_model
 import time
+import tracemalloc
 
 def solve_with_brute_force(matrix):
-    """
-    Solve Hashiwokakero using brute-force approach (try all truth assignments).
-    """
+    tracemalloc.start()
     start_time = time.perf_counter()
 
     islands = get_island_info(matrix)
@@ -23,7 +22,7 @@ def solve_with_brute_force(matrix):
     n = get_n_vars(cnf)
 
     for c in itertools.product([False, True], repeat=n):
-        assignment = [None] + list(c)  
+        assignment = [None] + list(c)
         satisfied = True
 
         for clause in clauses:
@@ -36,6 +35,11 @@ def solve_with_brute_force(matrix):
             solution = interpret_model(assignment, bridge_vars)
             if check_connect(solution, islands):
                 elapsed = time.perf_counter() - start_time
-                return solution, islands, bridges, elapsed
+                current, peak = tracemalloc.get_traced_memory()
+                tracemalloc.stop()
+                return solution, islands, bridges, elapsed, peak / 1024
+
     elapsed = time.perf_counter() - start_time
-    return None, None, None, elapsed
+    current, peak = tracemalloc.get_traced_memory()
+    tracemalloc.stop()
+    return None, None, None, elapsed, peak / 1024
